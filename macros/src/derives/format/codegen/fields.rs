@@ -2,7 +2,7 @@ use std::fmt::Write as _;
 
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{format_ident, quote};
-use syn::{Field, Fields, Index, Meta, NestedMeta, Type};
+use syn::{Field, Fields, Index, Meta, Type};
 
 use crate::consts;
 
@@ -82,7 +82,6 @@ enum FormatOption {
     Debug2Format,
     Display2Format,
 }
-
 /// If the field has a valid defmt attribute (e.g. `#[defmt(Debug2Format)]`), returns `Ok(Some(FormatOption))`.
 /// Returns `Err` if we can't parse a valid defmt attribute.
 /// Returns `Ok(None)` if there are no `defmt` attributes on the field.
@@ -91,18 +90,19 @@ fn get_defmt_format_option(field: &Field) -> syn::Result<Option<FormatOption>> {
     let attrs = field
         .attrs
         .iter()
-        .filter(|a| a.path.is_ident("defmt"))
+        .filter(|a| a.path().is_ident("defmt"))
         .map(|a| a.parse_meta())
         .collect::<syn::Result<Vec<_>>>()?;
-    if attrs.is_empty() {
-        return Ok(None);
-    } else if attrs.len() > 1 {
-        return Err(Error::new_spanned(
-            field,
-            "multiple `defmt` attributes not supported",
-        ));
-    } // else attrs.len() == 1
-    let attr = &attrs[0];
+    let attr = match attrs.len() {
+        0 => return Ok(None),
+        1 => attrs[0],
+        _ => {
+            return Err(Error::new_spanned(
+                field,
+                "multiple `defmt` attributes not supported",
+            ))
+        }
+    };
     let args = match attr {
         Meta::List(list) => &list.nested,
         bad => return Err(syn::Error::new_spanned(bad, "unrecognized attribute")),
