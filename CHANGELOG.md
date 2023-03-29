@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [v0.3.3] - 2023-03-29
+
 - [#744]: `defmt-parser`: Clean and simplify
 - [#742]: `defmt-decoder`: Include crate name in symbol name
 - [#743]: `defmt-parser`: Simplify tests with `rstest`
@@ -531,7 +533,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Initial release
 
-[Unreleased]: https://github.com/knurling-rs/defmt/compare/defmt-v0.3.2...main
+[Unreleased]: https://github.com/knurling-rs/defmt/compare/defmt-v0.3.3...main
+[v0.3.2]: https://github.com/knurling-rs/defmt/compare/defmt-v0.3.2...defmt-v0.3.3
 [v0.3.2]: https://github.com/knurling-rs/defmt/compare/defmt-v0.3.1...defmt-v0.3.2
 [v0.3.1]: https://github.com/knurling-rs/defmt/compare/defmt-v0.3.0...defmt-v0.3.1
 [v0.3.0]: https://github.com/knurling-rs/defmt/compare/defmt-v0.2.3...defmt-v0.3.0
