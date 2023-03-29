@@ -15,7 +15,7 @@ name = "defmt"
 readme = "../README.md"
 repository = "https://github.com/knurling-rs/defmt"
 homepage = "https://knurling.ferrous-systems.com/"
-version = "0.3.2"
+version = "0.3.3"
 
 [features]
 alloc = []
@@ -43,7 +43,7 @@ unstable-test = [ "defmt-macros/unstable-test" ]
 
 [dependencies]
 defmt-macros = { path = "../macros", version = "0.3.2" }
-bitflags = "1"
+bitflags = "2"
 
 [dev-dependencies]
 rustc_version = "0.4"
