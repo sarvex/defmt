@@ -2,7 +2,7 @@ use std::fmt::Write as _;
 
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{format_ident, quote};
-use syn::{Field, Fields, Index, Meta, Type};
+use syn::{Error, Field, Fields, Index, Type};
 
 use crate::consts;
 
@@ -86,13 +86,11 @@ enum FormatOption {
 /// Returns `Err` if we can't parse a valid defmt attribute.
 /// Returns `Ok(None)` if there are no `defmt` attributes on the field.
 fn get_defmt_format_option(field: &Field) -> syn::Result<Option<FormatOption>> {
-    use syn::Error;
     let attrs = field
         .attrs
         .iter()
         .filter(|a| a.path().is_ident("defmt"))
-        .map(|a| a.parse_meta())
-        .collect::<syn::Result<Vec<_>>>()?;
+        .collect::<Vec<_>>();
     let attr = match attrs.len() {
         0 => return Ok(None),
         1 => attrs[0],
@@ -103,34 +101,29 @@ fn get_defmt_format_option(field: &Field) -> syn::Result<Option<FormatOption>> {
             ))
         }
     };
-    let args = match attr {
-        Meta::List(list) => &list.nested,
-        bad => return Err(syn::Error::new_spanned(bad, "unrecognized attribute")),
-    };
-    if args.len() != 1 {
-        return Err(syn::Error::new_spanned(
-            attr,
-            "expected 1 attribute argument",
-        ));
-    }
-    let arg = match &args[0] {
-        NestedMeta::Meta(Meta::Path(arg)) => arg,
-        bad => {
-            return Err(syn::Error::new_spanned(
-                bad,
+
+    let mut args = Vec::new();
+    attr.parse_nested_meta(|meta| {
+        if meta.path.is_ident("Debug2Format") {
+            args.push(FormatOption::Debug2Format);
+            Ok(())
+        } else if meta.path.is_ident("Display2Format") {
+            args.push(FormatOption::Display2Format);
+            Ok(())
+        } else {
+            Err(syn::Error::new_spanned(
+                meta.path,
                 "expected `Debug2Format` or `Display2Format`",
             ))
         }
-    };
-    if arg.is_ident("Debug2Format") {
-        Ok(Some(FormatOption::Debug2Format))
-    } else if arg.is_ident("Display2Format") {
-        Ok(Some(FormatOption::Display2Format))
-    } else {
-        Err(syn::Error::new_spanned(
-            arg,
-            "expected `Debug2Format` or `Display2Format`",
-        ))
+    })?;
+
+    match args.len() {
+        1 => Ok(Some(args[0])),
+        _ => Err(syn::Error::new_spanned(
+            attr,
+            "expected 1 attribute argument",
+        )),
     }
 }
 
